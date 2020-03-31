@@ -6,6 +6,7 @@ using FirebaseAdmin.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using MyFirebaseApp.API.Extension.Abstract;
 using MyFirebaseApp.Library.Notification;
+using MyFirebaseApp.Library.Notification.Abstract;
 using Newtonsoft.Json;
 
 namespace MyFirebaseApp.API.Controllers
@@ -27,18 +28,11 @@ namespace MyFirebaseApp.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult SendNotify([FromBody] Notification notification)
+        public IActionResult SendNotify([FromBody] NotificationPayload notification)
         {
-            var data = new Dictionary<string, string>()
-            {
-                {"Data-1","Data 1 Content" },
-                {"Data-2","Data 2 Content" },
-                {"Notification",JsonConvert.SerializeObject(notification)}
-            };
-
             try
             {
-                _sender.Send(data);
+                _sender.Send(notification);
             }
             catch (Exception ex)
             {

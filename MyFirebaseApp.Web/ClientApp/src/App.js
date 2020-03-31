@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { messaging } from "./initFirebase";
 import { compose, lifecycle, withHandlers, withState } from "recompose";
+import { helper } from './helper';
 
 const renderNotification = (notification, i) => <li key={i}>{notification}</li>;
 
@@ -14,7 +15,7 @@ const registerPushListener = pushNotification =>
         pushNotification(notification);
     });
 
-const App = ({ token, notifications }) => (
+const App = ({ notifications }) => (
     <ul>
         Notifications List:
             {notifications.map(renderNotification)}
@@ -26,7 +27,7 @@ export default compose(
     withState("notifications", "setNotifications", []),
     withHandlers({
         pushNotification: ({
-            setNotifications,notifications
+            setNotifications, notifications
         }) => newNotification =>
                 setNotifications(notifications.concat(newNotification))
     }),
@@ -36,16 +37,31 @@ export default compose(
 
             messaging
                 .requestPermission()
-                .then(async function () {
-                    const token = await messaging.getToken();
-                    console.log(token);
+                .then(() => messaging.getToken())
+                .then(token => {
+                    console.log("New Token :" + token);
+                    helper.handleTokenRefresh(token);
                     setToken(token);
                 })
                 .catch(function (err) {
                     console.log("Unable to get permission to notify.", err);
                 });
 
+            messaging.onTokenRefresh(() => {
+                messaging.getToken()
+                    .then((refreshedToken) => {
+                        console.log("New Token : " + refreshedToken);
+                        helper.handleTokenRefresh(refreshedToken);
+                        setToken(refreshedToken);
+                    })
+                    .then((resp) => { helper.checkSubscription(resp); })
+                    .catch(function (err) {
+                        console.log('Unable to retrieve refreshed token ', err);
+                    });
+            });
+
             registerPushListener(pushNotification);
         }
     })
 )(App);
+
