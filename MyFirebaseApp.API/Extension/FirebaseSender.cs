@@ -23,11 +23,16 @@ namespace MyFirebaseApp.API.Extension
         {
             _firebaseSettings = appSettings.Value.FirebaseSettings;
             string jsonStr = JsonConvert.SerializeObject(_firebaseSettings);
-            var app = FirebaseApp.Create(new AppOptions()
-            {
-                Credential = GoogleCredential.FromJson(jsonStr)
-            });
 
+            var app = FirebaseApp.DefaultInstance;
+            if (app == null)
+            {
+                app = FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromJson(jsonStr)
+                });
+            }
+             
             _firebaseMessaging = FirebaseMessaging.GetMessaging(app);
 
         }

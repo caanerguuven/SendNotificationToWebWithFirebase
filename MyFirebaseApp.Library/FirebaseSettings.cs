@@ -17,6 +17,5 @@ namespace MyFirebaseApp.Library
         public string Token_uri { get; set; }
         public string Auth_provider_x509_cert_url { get; set; }
         public string Client_x509_cert_url { get; set; }
-        public string Device_token { get; set; }
     }
 }
